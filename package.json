@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Backend Application",
   "license": "MIT",
+  "engines": {
+    "node": ">=20.18.0"
+  },
   "author": "Adrian Pietrzak <contact@pietrzakadrian.com>",
   "scripts": {
     "prebuild": "rimraf dist",
