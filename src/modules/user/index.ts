@@ -10,12 +10,18 @@ import {
   UserAuthRepository,
   UserConfigRepository,
   UserRepository,
+  RefreshTokenRepository,
+  BlacklistedTokenRepository,
+  PasswordHistoryRepository,
+  UserSessionRepository,
 } from 'modules/user/repositories';
 import {
   UserAuthForgottenPasswordService,
   UserAuthService,
   UserConfigService,
   UserService,
+  PasswordHistoryService,
+  SessionManagementService,
 } from 'modules/user/services';
 import { BillModule } from 'modules/bill';
 import { CurrencyModule } from 'modules/currency';
@@ -35,6 +41,10 @@ import { UserAuthForgottenPasswordEntity } from './entities';
       UserAuthRepository,
       UserConfigRepository,
       UserAuthForgottenPasswordRepository,
+      RefreshTokenRepository,
+      BlacklistedTokenRepository,
+      PasswordHistoryRepository,
+      UserSessionRepository,
       BillRepository,
       CurrencyRepository,
       TransactionRepository,
@@ -46,12 +56,16 @@ import { UserAuthForgottenPasswordEntity } from './entities';
     UserConfigService,
     UserService,
     UserAuthForgottenPasswordService,
+    PasswordHistoryService,
+    SessionManagementService,
   ],
   providers: [
     UserAuthService,
     UserConfigService,
     UserService,
     UserAuthForgottenPasswordService,
+    PasswordHistoryService,
+    SessionManagementService,
   ],
 })
 export class UserModule {}
