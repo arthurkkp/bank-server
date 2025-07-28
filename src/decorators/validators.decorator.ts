@@ -16,7 +16,10 @@ export function IsPassword(
       options: validationOptions,
       validator: {
         validate(value: string, _args: ValidationArguments) {
-          return /^[a-zA-Z0-9!@#$%^&*]*$/.test(value);
+          const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+          const commonPasswords = ['password', '123456', 'qwerty', 'admin', 'letmein'];
+          
+          return strongPasswordRegex.test(value) && !commonPasswords.includes(value.toLowerCase());
         },
       },
     });

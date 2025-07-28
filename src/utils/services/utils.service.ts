@@ -26,7 +26,7 @@ export class UtilsService {
   }
 
   static generateHash(password: string): string {
-    return bcrypt.hashSync(password, 10);
+    return bcrypt.hashSync(password, 12);
   }
 
   static validateHash(password: string, hash: string): Promise<boolean> {

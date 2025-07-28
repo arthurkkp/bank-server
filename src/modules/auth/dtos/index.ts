@@ -5,3 +5,5 @@ export * from './user-register.dto';
 export * from './user-forgotten-password.dto';
 export * from './user-reset-password.dto';
 export * from './forgotten-password-payload.dto';
+export * from './enhanced-token-payload.dto';
+export * from './refresh-token-request.dto';

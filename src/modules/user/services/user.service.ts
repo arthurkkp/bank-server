@@ -14,6 +14,7 @@ import { UserAuthService } from './user-auth.service';
 import { UserConfigService } from './user-config.service';
 import { CurrencyService } from 'modules/currency/services';
 import { MessageEntity } from 'modules/message/entities';
+import { SessionManagementService } from './session-management.service';
 
 @Injectable()
 export class UserService {
@@ -23,6 +24,7 @@ export class UserService {
     private readonly _userConfigService: UserConfigService,
     private readonly _billService: BillService,
     private readonly _currencyService: CurrencyService,
+    private readonly _sessionManagementService: SessionManagementService,
   ) {}
 
   @Transactional()
@@ -141,5 +143,17 @@ export class UserService {
     }
 
     return this.getUser({ uuid: user.uuid });
+  }
+
+  async getUserSessions(user: UserEntity) {
+    return this._sessionManagementService.getUserSessions(user);
+  }
+
+  async revokeUserSession(user: UserEntity, sessionToken: string): Promise<void> {
+    return this._sessionManagementService.revokeSession(sessionToken);
+  }
+
+  async revokeAllUserSessions(user: UserEntity, exceptSessionToken?: string): Promise<void> {
+    return this._sessionManagementService.revokeAllUserSessions(user, exceptSessionToken);
   }
 }

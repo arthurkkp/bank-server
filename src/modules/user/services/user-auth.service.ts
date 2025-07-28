@@ -84,13 +84,19 @@ export class UserAuthService {
     userAuth: UserAuthEntity,
     password: string,
   ): Promise<UpdateResult> {
+    const hashedPassword = UtilsService.generateHash(password);
     const queryBuilder = this._userAuthRepository.createQueryBuilder(
       'userAuth',
     );
 
     return queryBuilder
       .update()
-      .set({ password })
+      .set({ 
+        password: hashedPassword,
+        lastPasswordChange: new Date(),
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+      })
       .where('id = :id', { id: userAuth.id })
       .execute();
   }
@@ -171,5 +177,29 @@ export class UserAuthService {
       .set({ lastSuccessfulLoggedDate: lastPresentLoggedDate ?? new Date() })
       .where('id = :id', { id: userAuth.id })
       .execute();
+  }
+
+  public async incrementFailedLoginAttempts(userAuth: UserAuthEntity): Promise<void> {
+    const newAttempts = userAuth.failedLoginAttempts + 1;
+    const lockoutThreshold = 5;
+    
+    let lockedUntil = null;
+    if (newAttempts >= lockoutThreshold) {
+      lockedUntil = new Date();
+      lockedUntil.setMinutes(lockedUntil.getMinutes() + Math.pow(2, newAttempts - lockoutThreshold) * 15);
+    }
+
+    await this._userAuthRepository.update(userAuth.id, {
+      failedLoginAttempts: newAttempts,
+      lockedUntil,
+      lastFailedLoggedDate: new Date(),
+    });
+  }
+
+  public async resetFailedLoginAttempts(userAuth: UserAuthEntity): Promise<void> {
+    await this._userAuthRepository.update(userAuth.id, {
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+    });
   }
 }

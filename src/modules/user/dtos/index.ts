@@ -6,3 +6,7 @@ export * from './users-page-options.dto';
 export * from './users-page.dto';
 export * from './user-auth-forgotten-password.dto';
 export * from './forgotten-password-create.dto';
+export * from './refresh-token.dto';
+export * from './blacklisted-token.dto';
+export * from './password-history.dto';
+export * from './user-session.dto';

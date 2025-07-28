@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Patch,
   Post,
   Req,
@@ -25,6 +28,8 @@ import {
   UserLoginDto,
   UserRegisterDto,
   UserResetPasswordDto,
+  EnhancedTokenPayloadDto,
+  RefreshTokenRequestDto,
 } from 'modules/auth/dtos';
 import { AuthService } from 'modules/auth/services';
 import { UserDto } from 'modules/user/dtos';
@@ -50,9 +55,16 @@ export class AuthController {
   })
   async userLogin(
     @Body() userLoginDto: UserLoginDto,
+    @Req() req: any,
   ): Promise<LoginPayloadDto> {
     const user = await this._authService.validateUser(userLoginDto);
-    const token = await this._authService.createToken(user);
+    
+    const deviceInfo = {
+      userAgent: req.headers['user-agent'],
+      ip: req.ip,
+    };
+    
+    const token = await this._authService.createToken(user, deviceInfo);
 
     return new LoginPayloadDto(user.toDto(), token);
   }
@@ -80,8 +92,9 @@ export class AuthController {
   @UseInterceptors(AuthUserInterceptor)
   @ApiBearerAuth()
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
-  async userLogout(@AuthUser() user: UserEntity): Promise<void> {
-    await this._userAuthService.updateLastLogoutDate(user.userAuth);
+  async userLogout(@AuthUser() user: UserEntity, @Req() req: any): Promise<void> {
+    const token = req.headers.authorization?.substring(7);
+    await this._authService.logout(user, token);
   }
 
   @Post('password/forget')
@@ -110,5 +123,71 @@ export class AuthController {
     @Req() { user },
   ) {
     return this._authService.handleResetPassword(password, user);
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    type: EnhancedTokenPayloadDto,
+    description: 'New access and refresh tokens',
+  })
+  async refreshToken(
+    @Body() refreshTokenRequestDto: RefreshTokenRequestDto,
+    @Req() req: any,
+  ): Promise<EnhancedTokenPayloadDto> {
+    const deviceInfo = {
+      userAgent: req.headers['user-agent'],
+      ip: req.ip,
+    };
+    
+    return this._authService.refreshToken(refreshTokenRequestDto, deviceInfo);
+  }
+
+  @Get('sessions')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    status: HttpStatus.OK,
+    description: 'User sessions list',
+  })
+  @UseGuards(AuthGuard, RolesGuard)
+  @UseInterceptors(AuthUserInterceptor)
+  @ApiBearerAuth()
+  @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
+  async getUserSessions(@AuthUser() user: UserEntity) {
+    return this._userService.getUserSessions(user);
+  }
+
+  @Delete('sessions/:sessionToken')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({
+    description: 'Session revoked successfully',
+  })
+  @UseGuards(AuthGuard, RolesGuard)
+  @UseInterceptors(AuthUserInterceptor)
+  @ApiBearerAuth()
+  @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
+  async revokeSession(
+    @AuthUser() user: UserEntity,
+    @Param('sessionToken') sessionToken: string,
+  ): Promise<void> {
+    return this._userService.revokeUserSession(user, sessionToken);
+  }
+
+  @Delete('sessions')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({
+    description: 'All sessions revoked successfully',
+  })
+  @UseGuards(AuthGuard, RolesGuard)
+  @UseInterceptors(AuthUserInterceptor)
+  @ApiBearerAuth()
+  @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
+  async revokeAllSessions(
+    @AuthUser() user: UserEntity,
+    @Req() req: any,
+  ): Promise<void> {
+    const currentSessionToken = req.headers.authorization?.substring(7);
+    return this._userService.revokeAllUserSessions(user, currentSessionToken);
   }
 }
