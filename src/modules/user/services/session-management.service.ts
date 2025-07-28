@@ -92,7 +92,9 @@ export class SessionManagementService {
     if (sessions.length > this.MAX_CONCURRENT_SESSIONS) {
       const sessionsToDelete = sessions.slice(this.MAX_CONCURRENT_SESSIONS);
       const tokensToDelete = sessionsToDelete.map(s => s.sessionToken);
-      await this._userSessionRepository.delete({ sessionToken: tokensToDelete });
+      for (const token of tokensToDelete) {
+        await this._userSessionRepository.delete({ sessionToken: token });
+      }
     }
   }
 }

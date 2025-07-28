@@ -1,7 +1,7 @@
 import { AbstractEntity } from 'common/entities';
 import { UserSessionDto } from '../dtos';
 import { UserEntity } from './user.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity({ name: 'user_sessions' })
 export class UserSessionEntity extends AbstractEntity<UserSessionDto> {
@@ -22,6 +22,17 @@ export class UserSessionEntity extends AbstractEntity<UserSessionDto> {
 
   @Column({ type: 'timestamp with time zone' })
   expiresAt: Date;
+
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+  })
+  createdAt: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp with time zone',
+    nullable: true,
+  })
+  updatedAt: Date;
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn()
