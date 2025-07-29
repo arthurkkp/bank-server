@@ -22,8 +22,12 @@ export class CurrencyController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Get currency',
+    description: 'Get paginated list of available currencies',
     type: CurrenciesPageDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid pagination parameters',
   })
   async getAvailableCurrencies(
     @Query(new ValidationPipe({ transform: true }))

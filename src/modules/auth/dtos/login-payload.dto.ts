@@ -4,10 +4,16 @@ import { UserDto } from 'modules/user/dtos';
 import { TokenPayloadDto } from './token-payload.dto';
 
 export class LoginPayloadDto {
-  @ApiProperty({ type: () => UserDto })
+  @ApiProperty({ 
+    type: () => UserDto,
+    description: 'Authenticated user information'
+  })
   readonly user: UserDto;
 
-  @ApiProperty({ type: () => TokenPayloadDto })
+  @ApiProperty({ 
+    type: () => TokenPayloadDto,
+    description: 'JWT token information for API authentication'
+  })
   readonly token: TokenPayloadDto;
 
   constructor(user: UserDto, token: TokenPayloadDto) {

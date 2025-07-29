@@ -7,23 +7,41 @@ import { UserAuthDto } from './user-auth.dto';
 import { UserConfigDto } from './user-config.dto';
 
 export class UserDto extends AbstractDto {
-  @ApiProperty()
+  @ApiProperty({
+    description: 'User first name',
+    example: 'John'
+  })
   readonly firstName: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'User last name',
+    example: 'Doe'
+  })
   readonly lastName: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'User email address',
+    example: 'john.doe@example.com'
+  })
   readonly email?: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'User avatar filename',
+    example: 'default-avatar.png'
+  })
   readonly avatar: string;
 
-  @ApiPropertyOptional({ type: UserAuthDto })
+  @ApiPropertyOptional({ 
+    type: UserAuthDto,
+    description: 'User authentication information'
+  })
   @IsOptional()
   readonly userAuth?: UserAuthDto;
 
-  @ApiPropertyOptional({ type: UserConfigDto })
+  @ApiPropertyOptional({ 
+    type: UserConfigDto,
+    description: 'User configuration and preferences'
+  })
   @IsOptional()
   readonly userConfig?: UserConfigDto;
 

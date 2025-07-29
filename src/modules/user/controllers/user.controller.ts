@@ -35,8 +35,12 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Get user',
+    description: 'Get authenticated user profile data',
     type: UserDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
   })
   async getUserData(@AuthUser() user: UserEntity): Promise<UserDto> {
     const userEntity = await this._userService.getUser({ uuid: user.uuid });
@@ -51,8 +55,16 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Update user',
+    description: 'Update user profile information',
     type: UserDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error - invalid input data',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
   })
   async setUserData(
     @AuthUser() user: UserEntity,
@@ -69,8 +81,12 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Get user',
+    description: 'Check if email address is already registered',
     type: AbstractCheckDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid email format',
   })
   async checkEmail(@Param('email') email: string): Promise<AbstractCheckDto> {
     const userEmail = await this._userService.getUser({

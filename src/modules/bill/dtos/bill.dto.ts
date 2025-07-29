@@ -6,17 +6,30 @@ import { CurrencyDto } from 'modules/currency/dtos';
 import { UserDto } from 'modules/user/dtos';
 
 export class BillDto extends AbstractDto {
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Unique 5-digit account bill number',
+    example: '12345',
+    pattern: '^[0-9]{5}$'
+  })
   readonly accountBillNumber: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'Current account balance in the account currency',
+    example: '1250.75'
+  })
   @IsOptional()
   readonly amountMoney?: string;
 
-  @ApiProperty({ type: () => CurrencyDto })
+  @ApiProperty({ 
+    type: () => CurrencyDto,
+    description: 'Currency information for this account'
+  })
   readonly currency: CurrencyDto;
 
-  @ApiPropertyOptional({ type: () => UserDto })
+  @ApiPropertyOptional({ 
+    type: () => UserDto,
+    description: 'Account owner information'
+  })
   @IsOptional()
   readonly user?: UserDto;
 
