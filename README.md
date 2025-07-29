@@ -37,7 +37,7 @@ Full Stack Web Application similar to financial software that is used in profess
 
 <h4>System requirements</h4>
 
-- [**Node.js** v12.18+](https://nodejs.org/en/)
+- [**Node.js** v18.20+](https://nodejs.org/en/)
 - [**yarn** v1.22+](https://classic.yarnpkg.com/en/)
 - [**PostgreSQL** v10.12+](https://www.postgresql.org/)
 
