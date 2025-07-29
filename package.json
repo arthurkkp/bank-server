@@ -4,6 +4,10 @@
   "description": "Backend Application",
   "license": "MIT",
   "author": "Adrian Pietrzak <contact@pietrzakadrian.com>",
+  "engines": {
+    "npm": ">=5",
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
