@@ -1,3 +1,5 @@
+# Bank Server
+
 <div align="center">
 <br>
     <a href="https://bank.pietrzakadrian.com"> 
@@ -12,6 +14,8 @@ Full Stack Web Application similar to financial software that is used in profess
 </h4>
 
 </div>
+
+## Features
 
 - The current account balance is calculated based on the SQL operation (**Double-entry bookkeeping**)
 - Internalization of the application for three languages: **English**, **German** and **Polish**
@@ -28,31 +32,94 @@ Full Stack Web Application similar to financial software that is used in profess
 
 <hr>
 
-<dl>
-  <h3>Backend technologies stack</h3>
-  <dd><a href="https://github.com/microsoft/TypeScript">TypeScript</a>, <a href="https://github.com/nodejs/node">Node.js</a>, <a href="https://github.com/nestjs/nest">Nest.js</a>, REST API, PostgreSQL and Swagger Documentation</dd>
-</dl>
+## Technology Stack
 
-<hr>
+**Backend technologies:** [TypeScript](https://github.com/microsoft/TypeScript), [Node.js](https://github.com/nodejs/node), [Nest.js](https://github.com/nestjs/nest), REST API, PostgreSQL and Swagger Documentation
 
-<h4>System requirements</h4>
+## Quick Start
+
+### System Requirements
 
 - [**Node.js** v12.18+](https://nodejs.org/en/)
 - [**yarn** v1.22+](https://classic.yarnpkg.com/en/)
 - [**PostgreSQL** v10.12+](https://www.postgresql.org/)
 
-<h4>Installation</h4>
+### Installation
 
 ```bash
-# 1. Install the required dependencies
-yarn
+# 1. Clone the repository
+git clone <repository-url>
+cd bank-server
 
-# 2. Rename the .env.example filename to .env and set your local variables
-mv .env.example .env
+# 2. Install dependencies
+yarn install
 
-# 3. Start the server with the backend application
-yarn start
+# 3. Set up environment variables
+cp .env.example .env
+# Edit .env file with your database credentials and other settings
+
+# 4. Set up PostgreSQL database
+# Create a database named 'bank' (or as specified in your .env)
+createdb bank
+
+# 5. Run database migrations
+yarn migration:run
+
+# 6. Start the development server
+yarn start:dev
 ```
 
-<h4>License</h4>
+The server will start on `http://localhost:4000` (or the port specified in your `.env` file).
+
+### API Documentation
+
+Once the server is running, you can access the Swagger API documentation at:
+`http://localhost:4000/documentation`
+
+## Project Structure
+
+```
+src/
+├── common/           # Shared DTOs, entities, and utilities
+├── decorators/       # Custom decorators
+├── exceptions/       # Custom exception classes
+├── filters/          # Exception filters
+├── guards/           # Authentication and authorization guards
+├── interceptors/     # Request/response interceptors
+├── interfaces/       # TypeScript interfaces
+├── middlewares/      # Express middlewares
+├── migrations/       # Database migration files
+├── modules/          # Feature modules
+│   ├── app/         # Main application module
+│   ├── auth/        # Authentication and JWT management
+│   ├── bill/        # Account management (banking accounts)
+│   ├── currency/    # Multi-currency support and exchange rates
+│   ├── language/    # Internationalization
+│   ├── message/     # User messaging system
+│   ├── notification/# System notifications
+│   ├── transaction/ # Money transfer operations
+│   └── user/        # User management
+├── providers/        # Custom providers
+├── utils/           # Utility functions and configurations
+└── main.ts          # Application entry point
+```
+
+## Development
+
+For detailed development instructions, see [DEVELOPMENT.md](./DEVELOPMENT.md).
+
+## Contributing
+
+Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## Troubleshooting
+
+For common issues and solutions, see [TROUBLESHOOTING.md](./TROUBLESHOOTING.md).
+
+## Coding Standards
+
+For coding guidelines and standards, see [CODING_STANDARDS.md](./CODING_STANDARDS.md).
+
+## License
+
 This project is licensed under the MIT license. Copyright (c) 2020 Adrian Pietrzak.
