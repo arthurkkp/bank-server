@@ -1,16 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'modules/auth';
-import { BillRepository } from 'modules/bill/repositories';
-import { CurrencyRepository } from 'modules/currency/repositories';
-import { TransactionRepository } from 'modules/transaction/repositories';
 import { UserController } from 'modules/user/controllers';
-import {
-  UserAuthForgottenPasswordRepository,
-  UserAuthRepository,
-  UserConfigRepository,
-  UserRepository,
-} from 'modules/user/repositories';
 import {
   UserAuthForgottenPasswordService,
   UserAuthService,
@@ -21,7 +12,15 @@ import { BillModule } from 'modules/bill';
 import { CurrencyModule } from 'modules/currency';
 import { MessageModule } from 'modules/message';
 import { TransactionModule } from 'modules/transaction';
-import { UserAuthForgottenPasswordEntity } from './entities';
+import { 
+  UserEntity,
+  UserAuthEntity,
+  UserConfigEntity,
+  UserAuthForgottenPasswordEntity 
+} from './entities';
+import { BillEntity } from 'modules/bill/entities';
+import { CurrencyEntity } from 'modules/currency/entities';
+import { TransactionEntity } from 'modules/transaction/entities';
 
 @Module({
   imports: [
@@ -31,13 +30,13 @@ import { UserAuthForgottenPasswordEntity } from './entities';
     forwardRef(() => AuthModule),
     forwardRef(() => TransactionModule),
     TypeOrmModule.forFeature([
-      UserRepository,
-      UserAuthRepository,
-      UserConfigRepository,
-      UserAuthForgottenPasswordRepository,
-      BillRepository,
-      CurrencyRepository,
-      TransactionRepository,
+      UserEntity,
+      UserAuthEntity,
+      UserConfigEntity,
+      UserAuthForgottenPasswordEntity,
+      BillEntity,
+      CurrencyEntity,
+      TransactionEntity,
     ]),
   ],
   controllers: [UserController],

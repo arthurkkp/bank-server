@@ -1,5 +1,7 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Order } from 'common/constants';
 import { PageMetaDto } from 'common/dtos';
@@ -12,7 +14,6 @@ import * as fs from 'fs';
 import handlebars from 'handlebars';
 import * as pdf from 'html-pdf';
 import { BillEntity } from 'modules/bill/entities';
-import { BillRepository } from 'modules/bill/repositories';
 import { BillService } from 'modules/bill/services';
 import { LanguageService } from 'modules/language/services';
 import {
@@ -22,12 +23,11 @@ import {
   TransactionsPageOptionsDto,
 } from 'modules/transaction/dtos';
 import { TransactionEntity } from 'modules/transaction/entities';
-import { TransactionRepository } from 'modules/transaction/repositories';
 import { UserEntity } from 'modules/user/entities';
 import { UserConfigService } from 'modules/user/services';
 import { Readable } from 'stream';
 import { UpdateResult } from 'typeorm';
-import { Transactional } from 'typeorm-transactional-cls-hooked';
+import { Transactional } from 'typeorm-transactional';
 import { UtilsService, ValidatorService } from 'utils/services';
 
 @Injectable()
@@ -41,8 +41,10 @@ export class TransactionService {
   };
 
   constructor(
-    private readonly _transactionRepository: TransactionRepository,
-    private readonly _billRepository: BillRepository,
+    @InjectRepository(TransactionEntity)
+    private readonly _transactionRepository: Repository<TransactionEntity>,
+    @InjectRepository(BillEntity)
+    private readonly _billRepository: Repository<BillEntity>,
     private readonly _billService: BillService,
     private readonly _validatorService: ValidatorService,
     private readonly _mailerService: MailerService,

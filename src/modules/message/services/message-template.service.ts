@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { MessageTemplateRepository } from '../repositories';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { MessageEntity, MessageTemplateEntity } from '../entities';
 import { LanguageEntity } from 'modules/language/entities';
 import { LanguageService } from 'modules/language/services';
@@ -7,7 +8,8 @@ import { LanguageService } from 'modules/language/services';
 @Injectable()
 export class MessageTemplateService {
   constructor(
-    private readonly _messageTemplateRepository: MessageTemplateRepository,
+    @InjectRepository(MessageTemplateEntity)
+    private readonly _messageTemplateRepository: Repository<MessageTemplateEntity>,
     private readonly _languageService: LanguageService,
   ) {}
 

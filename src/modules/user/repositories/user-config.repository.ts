@@ -1,6 +1,11 @@
 import { UserConfigEntity } from '../entities';
-import { Repository } from 'typeorm';
-import { EntityRepository } from 'typeorm/decorator/EntityRepository';
+import { Injectable } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 
-@EntityRepository(UserConfigEntity)
-export class UserConfigRepository extends Repository<UserConfigEntity> {}
+@Injectable()
+export class UserConfigRepository extends Repository<UserConfigEntity> {
+  constructor(@InjectDataSource() private dataSource: DataSource) {
+    super(UserConfigEntity, dataSource.createEntityManager());
+  }
+}

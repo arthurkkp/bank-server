@@ -1,15 +1,12 @@
 import { Reflector, NestFactory } from '@nestjs/core';
 import * as compression from 'compression';
 import { AppModule } from 'modules/app';
-import * as helmet from 'helmet';
+import helmet from 'helmet';
 import { HttpExceptionFilter, QueryFailedFilter } from 'filters';
-import * as RateLimit from 'express-rate-limit';
+import rateLimit from 'express-rate-limit';
 import * as morgan from 'morgan';
 import { setupSwagger } from 'utils';
-import {
-  initializeTransactionalContext,
-  patchTypeORMRepositoryWithBaseRepository,
-} from 'typeorm-transactional-cls-hooked';
+import { initializeTransactionalContext } from 'typeorm-transactional';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import {
   ExpressAdapter,
@@ -19,7 +16,6 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap(): Promise<void> {
   initializeTransactionalContext();
-  patchTypeORMRepositoryWithBaseRepository();
 
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
@@ -29,7 +25,7 @@ async function bootstrap(): Promise<void> {
 
   app.enable('trust proxy');
   app.use(helmet());
-  app.use(RateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
+  app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
   app.use(compression());
   app.use(morgan('combined'));
   app.setGlobalPrefix('bank');

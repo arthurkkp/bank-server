@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { LanguageRepository } from 'modules/language/repositories';
-import { InsertResult } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, InsertResult } from 'typeorm';
 import { LanguageEntity } from '../entities';
 
 @Injectable()
@@ -11,7 +11,10 @@ export class LanguageService {
     { name: 'German', code: 'de' },
   ];
 
-  constructor(private readonly _languageRepository: LanguageRepository) {}
+  constructor(
+    @InjectRepository(LanguageEntity)
+    private readonly _languageRepository: Repository<LanguageEntity>,
+  ) {}
 
   public async getLanguages(): Promise<LanguageEntity[]> {
     const queryBuilder = this._languageRepository.createQueryBuilder(

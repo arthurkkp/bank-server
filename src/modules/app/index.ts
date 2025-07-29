@@ -22,6 +22,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MessageModule } from 'modules/message';
 import { NotificationModule } from 'modules/notification';
 import { UserSubscriber } from 'modules/user/subscribers/user.subscriber';
+import { addTransactionalDataSource } from 'typeorm-transactional';
+import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
@@ -37,25 +39,49 @@ import { UserSubscriber } from 'modules/user/subscribers/user.subscriber';
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [SharedModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DB_HOST'),
-        port: +configService.get<number>('DB_PORT'),
-        username: configService.get('DB_USERNAME'),
-        password: configService.get('DB_PASSWORD'),
-        database: configService.get('DB_DATABASE'),
-        entities: [__dirname + '/../../modules/**/*.entity{.ts,.js}'],
-        migrations: [__dirname + '/../../migrations/*{.ts,.js}'],
-        namingStrategy: new SnakeNamingStrategy(),
-        synchronize: false,
-        subscribers: [
-          UserSubscriber,
-          UserAuthSubscriber,
-          UserAuthForgottenPasswordSubscriber,
-        ],
-        migrationsRun: true,
-        logging: true,
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const dataSource = new DataSource({
+          type: 'postgres',
+          host: configService.get('DB_HOST'),
+          port: +configService.get<number>('DB_PORT'),
+          username: configService.get('DB_USERNAME'),
+          password: configService.get('DB_PASSWORD'),
+          database: configService.get('DB_DATABASE'),
+          entities: [__dirname + '/../../modules/**/*.entity{.ts,.js}'],
+          migrations: [__dirname + '/../../migrations/*{.ts,.js}'],
+          namingStrategy: new SnakeNamingStrategy(),
+          synchronize: false,
+          subscribers: [
+            UserSubscriber,
+            UserAuthSubscriber,
+            UserAuthForgottenPasswordSubscriber,
+          ],
+          migrationsRun: true,
+          logging: true,
+        });
+        
+        addTransactionalDataSource(dataSource);
+        
+        return {
+          type: 'postgres',
+          host: configService.get('DB_HOST'),
+          port: +configService.get<number>('DB_PORT'),
+          username: configService.get('DB_USERNAME'),
+          password: configService.get('DB_PASSWORD'),
+          database: configService.get('DB_DATABASE'),
+          entities: [__dirname + '/../../modules/**/*.entity{.ts,.js}'],
+          migrations: [__dirname + '/../../migrations/*{.ts,.js}'],
+          namingStrategy: new SnakeNamingStrategy(),
+          synchronize: false,
+          subscribers: [
+            UserSubscriber,
+            UserAuthSubscriber,
+            UserAuthForgottenPasswordSubscriber,
+          ],
+          migrationsRun: true,
+          logging: true,
+        };
+      },
       inject: [ConfigService],
     }),
     MailerModule.forRootAsync({
@@ -76,7 +102,7 @@ import { UserSubscriber } from 'modules/user/subscribers/user.subscriber';
           from: '"Bank Application" <payment@bank.pietrzakadrian.com>',
         },
         template: {
-          dir: process.cwd() + 'src/modules/transaction/templates/',
+          dir: process.cwd() + '/src/modules/transaction/templates/',
           adapter: new HandlebarsAdapter(),
           options: { strict: true },
         },

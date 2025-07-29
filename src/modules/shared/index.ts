@@ -1,4 +1,5 @@
-import { Global, HttpModule, Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { JwtModule } from '@nestjs/jwt';
 import { GeneratorService, ValidatorService } from 'utils/services';
 import { ConfigService } from '@nestjs/config';

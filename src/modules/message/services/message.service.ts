@@ -1,5 +1,6 @@
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
-import { MessageRepository } from 'modules/message/repositories';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { PageMetaDto } from 'common/dtos';
 import { UserEntity } from 'modules/user/entities';
 import { MessagesPageOptionsDto, MessagesPageDto } from 'modules/message/dtos';
@@ -9,7 +10,7 @@ import {
   MessageKeyService,
   MessageTemplateService,
 } from 'modules/message/services';
-import { Transactional } from 'typeorm-transactional-cls-hooked';
+import { Transactional } from 'typeorm-transactional';
 import { MessageEntity } from '../entities';
 import { ReadMessageDto } from '../dtos/read-message.dto';
 import { UpdateResult } from 'typeorm';
@@ -17,7 +18,8 @@ import { UpdateResult } from 'typeorm';
 @Injectable()
 export class MessageService {
   constructor(
-    private readonly _messageRepository: MessageRepository,
+    @InjectRepository(MessageEntity)
+    private readonly _messageRepository: Repository<MessageEntity>,
     @Inject(forwardRef(() => MessageKeyService))
     private readonly _messageKeyService: MessageKeyService,
     @Inject(forwardRef(() => MessageTemplateService))

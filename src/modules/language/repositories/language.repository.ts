@@ -1,6 +1,11 @@
 import { LanguageEntity } from 'modules/language/entities';
-import { Repository } from 'typeorm';
-import { EntityRepository } from 'typeorm/decorator/EntityRepository';
+import { Injectable } from '@nestjs/common';
+import { Repository, DataSource } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 
-@EntityRepository(LanguageEntity)
-export class LanguageRepository extends Repository<LanguageEntity> {}
+@Injectable()
+export class LanguageRepository extends Repository<LanguageEntity> {
+  constructor(@InjectDataSource() dataSource: DataSource) {
+    super(LanguageEntity, dataSource.createEntityManager());
+  }
+}

@@ -20,7 +20,7 @@ export class ValidatorService {
     senderAmountMoney: string | number,
     transactionAmountMoney: string | number,
   ): boolean {
-    if (transactionAmountMoney <= 0) {
+    if (Number(transactionAmountMoney) <= 0) {
       throw new AmountMoneyNotEnoughException();
     }
 
@@ -51,14 +51,7 @@ export class ValidatorService {
   }
 
   public isHigherRole(role: RoleType): boolean {
-    if (
-      Object.values(RoleType)
-        .filter((item) => item !== RoleType.USER)
-        .includes(role)
-    ) {
-      return true;
-    }
-
-    return false;
+    const higherRoles = [RoleType.ADMIN, RoleType.ROOT];
+    return higherRoles.includes(role as RoleType.ADMIN | RoleType.ROOT);
   }
 }

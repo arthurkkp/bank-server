@@ -30,7 +30,7 @@ import { AuthService } from 'modules/auth/services';
 import { UserDto } from 'modules/user/dtos';
 import { UserEntity } from 'modules/user/entities';
 import { UserAuthService, UserService } from 'modules/user/services';
-import { Transactional } from 'typeorm-transactional-cls-hooked';
+import { Transactional } from 'typeorm-transactional';
 
 @Controller('Auth')
 @ApiTags('Auth')

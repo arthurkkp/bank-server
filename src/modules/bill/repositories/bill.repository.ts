@@ -1,6 +1,6 @@
 import { BillEntity } from 'modules/bill/entities';
 import { Repository } from 'typeorm';
-import { EntityRepository } from 'typeorm/decorator/EntityRepository';
+import { Injectable } from '@nestjs/common';
 
-@EntityRepository(BillEntity)
+@Injectable()
 export class BillRepository extends Repository<BillEntity> {}

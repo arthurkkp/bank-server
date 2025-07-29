@@ -1,4 +1,7 @@
-import { HttpService, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { HttpService } from '@nestjs/axios';
 import { PageMetaDto } from 'common/dtos';
 import { ForeignExchangeRatesNotFoundException } from 'exceptions';
 import {
@@ -6,12 +9,12 @@ import {
   CurrenciesPageOptionsDto,
 } from 'modules/currency/dtos';
 import { CurrencyEntity } from 'modules/currency/entities';
-import { CurrencyRepository } from 'modules/currency/repositories';
 
 @Injectable()
 export class CurrencyService {
   constructor(
-    private readonly _currencyRepository: CurrencyRepository,
+    @InjectRepository(CurrencyEntity)
+    private readonly _currencyRepository: Repository<CurrencyEntity>,
     private readonly _httpService: HttpService,
   ) {}
 
