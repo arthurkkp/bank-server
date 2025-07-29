@@ -26,7 +26,71 @@ export class UtilsService {
   }
 
   static generateHash(password: string): string {
-    return bcrypt.hashSync(password, 10);
+    return bcrypt.hashSync(password, 12);
+  }
+
+  static async generateHashAsync(password: string): Promise<string> {
+    return bcrypt.hash(password, 12);
+  }
+
+  static validatePasswordStrength(password: string): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    
+    if (password.length < 8) {
+      errors.push('Password must be at least 8 characters long');
+    }
+    
+    if (!/[A-Z]/.test(password)) {
+      errors.push('Password must contain at least one uppercase letter');
+    }
+    
+    if (!/[a-z]/.test(password)) {
+      errors.push('Password must contain at least one lowercase letter');
+    }
+    
+    if (!/\d/.test(password)) {
+      errors.push('Password must contain at least one number');
+    }
+    
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      errors.push('Password must contain at least one special character');
+    }
+    
+    const commonPasswords = [
+      'password', '123456', '123456789', 'qwerty', 'abc123', 
+      'password123', 'admin', 'letmein', 'welcome', 'monkey'
+    ];
+    
+    if (commonPasswords.includes(password.toLowerCase())) {
+      errors.push('Password is too common');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
+  static validatePinCodeStrength(pinCode: number): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    const pinStr = pinCode.toString();
+    
+    if (pinStr.length !== 6) {
+      errors.push('PIN code must be exactly 6 digits');
+    }
+    
+    if (/^(\d)\1{5}$/.test(pinStr)) {
+      errors.push('PIN code cannot be all the same digit');
+    }
+    
+    if (/^(012345|123456|234567|345678|456789|567890|654321|543210|432109|321098|210987|109876)$/.test(pinStr)) {
+      errors.push('PIN code cannot be a sequential pattern');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   }
 
   static validateHash(password: string, hash: string): Promise<boolean> {
