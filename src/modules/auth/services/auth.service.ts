@@ -48,6 +48,12 @@ export class AuthService {
     return new TokenPayloadDto({
       expiresIn: this._configService.get('JWT_EXPIRATION_TIME'),
       accessToken: await this._jwtService.signAsync({ uuid, role }),
+      cookieOptions: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: this._configService.get('JWT_EXPIRATION_TIME') * 1000
+      }
     });
   }
 
