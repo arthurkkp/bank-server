@@ -12,6 +12,8 @@
     "outDir": "./dist",
     "baseUrl": "./src",
     "incremental": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": false,
     "paths": {
       "common/*": ["common/*"],
       "decorators/*": ["decorators/*"],

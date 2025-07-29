@@ -1,14 +1,14 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BillRepository } from 'modules/bill/repositories';
-import { CurrencyRepository } from 'modules/currency/repositories';
 import { TransactionController } from 'modules/transaction/controllers';
-import { TransactionRepository } from 'modules/transaction/repositories';
 import { TransactionService } from 'modules/transaction/services';
 import { CurrencyModule } from 'modules/currency';
 import { BillModule } from 'modules/bill';
 import { UserModule } from 'modules/user';
 import { LanguageModule } from 'modules/language';
+import { TransactionEntity } from 'modules/transaction/entities';
+import { BillEntity } from 'modules/bill/entities';
+import { CurrencyEntity } from 'modules/currency/entities';
 
 @Module({
   imports: [
@@ -17,9 +17,9 @@ import { LanguageModule } from 'modules/language';
     forwardRef(() => CurrencyModule),
     forwardRef(() => BillModule),
     TypeOrmModule.forFeature([
-      TransactionRepository,
-      BillRepository,
-      CurrencyRepository,
+      TransactionEntity,
+      BillEntity,
+      CurrencyEntity,
     ]),
   ],
   controllers: [TransactionController],

@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Order } from 'common/constants';
 import { PageMetaDto } from 'common/dtos';
 import {
@@ -16,10 +18,8 @@ import {
   TotalAmountMoneyPayloadDto,
 } from 'modules/bill/dtos';
 import { BillEntity } from 'modules/bill/entities';
-import { BillRepository } from 'modules/bill/repositories';
 import { CurrencyService } from 'modules/currency/services';
 import { TransactionEntity } from 'modules/transaction/entities';
-import { TransactionRepository } from 'modules/transaction/repositories';
 import { UserEntity } from 'modules/user/entities';
 import { getConnection } from 'typeorm';
 import { UtilsService } from 'utils/services';
@@ -27,8 +27,10 @@ import { UtilsService } from 'utils/services';
 @Injectable()
 export class BillService {
   constructor(
-    private readonly _billRepository: BillRepository,
-    private readonly _transactionRepository: TransactionRepository,
+    @InjectRepository(BillEntity)
+    private readonly _billRepository: Repository<BillEntity>,
+    @InjectRepository(TransactionEntity)
+    private readonly _transactionRepository: Repository<TransactionEntity>,
     private readonly _currencyService: CurrencyService,
   ) {}
 

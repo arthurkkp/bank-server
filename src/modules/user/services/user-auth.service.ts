@@ -1,22 +1,24 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { RoleType } from 'common/constants';
 import {
   CreateFailedException,
   PinCodeGenerationIncorrectException,
 } from 'exceptions';
 import { UserAuthEntity, UserEntity } from 'modules/user/entities';
-import { UserAuthRepository, UserRepository } from 'modules/user/repositories';
 import { UserService } from 'modules/user/services';
 import { UtilsService } from 'utils/services';
-import { UpdateResult } from 'typeorm';
-import { Transactional } from 'typeorm-transactional-cls-hooked';
+import { Transactional } from 'typeorm-transactional';
 import { UserConfigService } from './user-config.service';
 
 @Injectable()
 export class UserAuthService {
   constructor(
-    private readonly _userAuthRepository: UserAuthRepository,
-    private readonly _userRepostiory: UserRepository,
+    @InjectRepository(UserAuthEntity)
+    private readonly _userAuthRepository: Repository<UserAuthEntity>,
+    @InjectRepository(UserEntity)
+    private readonly _userRepostiory: Repository<UserEntity>,
     @Inject(forwardRef(() => UserService))
     private readonly _userService: UserService,
     private readonly _userConfigService: UserConfigService,

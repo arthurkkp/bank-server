@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import {
   CreateFailedException,
   EmailAddressExistException,
@@ -8,8 +10,7 @@ import { UserRegisterDto } from 'modules/auth/dtos';
 import { BillService } from 'modules/bill/services';
 import { UserUpdateDto } from 'modules/user/dtos';
 import { UserEntity } from 'modules/user/entities';
-import { UserRepository } from 'modules/user/repositories';
-import { Transactional } from 'typeorm-transactional-cls-hooked';
+import { Transactional } from 'typeorm-transactional';
 import { UserAuthService } from './user-auth.service';
 import { UserConfigService } from './user-config.service';
 import { CurrencyService } from 'modules/currency/services';
@@ -18,7 +19,8 @@ import { MessageEntity } from 'modules/message/entities';
 @Injectable()
 export class UserService {
   constructor(
-    private readonly _userRepository: UserRepository,
+    @InjectRepository(UserEntity)
+    private readonly _userRepository: Repository<UserEntity>,
     private readonly _userAuthService: UserAuthService,
     private readonly _userConfigService: UserConfigService,
     private readonly _billService: BillService,

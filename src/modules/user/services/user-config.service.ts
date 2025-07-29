@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { CreateFailedException, CurrencyNotFoundException } from 'exceptions';
 import { CurrencyService } from 'modules/currency/services';
 import { UserConfigEntity } from 'modules/user/entities';
-import { UserConfigRepository } from 'modules/user/repositories';
-import { UpdateResult } from 'typeorm';
 import { CurrencyEntity } from 'modules/currency/entities';
 
 @Injectable()
 export class UserConfigService {
   constructor(
-    private readonly _userConfigRepository: UserConfigRepository,
+    @InjectRepository(UserConfigEntity)
+    private readonly _userConfigRepository: Repository<UserConfigEntity>,
     private readonly _currencyService: CurrencyService,
   ) {}
 
