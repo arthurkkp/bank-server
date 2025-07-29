@@ -85,6 +85,7 @@ export class AppService implements OnModuleInit {
       lastName: 'Application',
       email: rootEmail,
       password: rootPassword,
+      confirmPassword: rootPassword,
       currency: uuid,
     });
 
@@ -116,6 +117,7 @@ export class AppService implements OnModuleInit {
       lastName: authorLastName,
       email: authorEmail,
       password: authorPassword,
+      confirmPassword: authorPassword,
       currency: uuid,
     });
 

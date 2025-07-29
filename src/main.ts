@@ -29,7 +29,31 @@ async function bootstrap(): Promise<void> {
 
   app.enable('trust proxy');
   app.use(helmet());
-  app.use(RateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
+  app.use('/bank/auth/login', 
+    RateLimit({
+      windowMs: 1 * 60 * 1000,
+      max: 5,
+      message: 'Too many login attempts, please try again later',
+    })
+  );
+
+  app.use('/bank/auth/register', 
+    RateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 3,
+      message: 'Too many registration attempts, please try again later',
+    })
+  );
+
+  app.use('/bank/auth/password/forget', 
+    RateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 3,
+      message: 'Too many password reset attempts, please try again later',
+    })
+  );
+
+  app.use(RateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
   app.use(compression());
   app.use(morgan('combined'));
   app.setGlobalPrefix('bank');
