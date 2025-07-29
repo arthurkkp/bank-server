@@ -1,4 +1,12 @@
-import { ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { 
+  ApiTags, 
+  ApiBearerAuth, 
+  ApiResponse,
+  ApiOperation,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+  ApiQuery
+} from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -20,6 +28,7 @@ import {
   TransactionsPageOptionsDto,
 } from 'modules/transaction/dtos';
 import { UserConfigService } from 'modules/user/services';
+import { ErrorResponseDto } from 'common/dtos';
 
 @Controller('Notifications')
 @ApiTags('Notifications')
@@ -36,11 +45,32 @@ export class NotificationController {
   @Get('/')
   @HttpCode(HttpStatus.OK)
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
-  @ApiResponse({
+  @ApiOperation({
+    summary: 'Get transaction notifications',
+    description: 'Retrieve paginated list of new transaction notifications for the authenticated user. This endpoint marks notifications as read.',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: 'number',
+    description: 'Page number (default: 1)',
+    example: 1
+  })
+  @ApiQuery({
+    name: 'take',
+    required: false,
+    type: 'number',
+    description: 'Number of items per page (default: 10)',
+    example: 10
+  })
+  @ApiOkResponse({
     status: HttpStatus.OK,
-    description:
-      'Notifications are the number of new transactions received. This may be changed.',
-    type: TransactionsPageDto,
+    description: 'Transaction notifications retrieved successfully',
+    type: TransactionsPageDto
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token',
+    type: ErrorResponseDto
   })
   async getTransactions(
     @Query(new ValidationPipe({ transform: true }))

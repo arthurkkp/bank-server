@@ -28,8 +28,21 @@ async function bootstrap(): Promise<void> {
   );
 
   app.enable('trust proxy');
-  app.use(helmet());
-  app.use(RateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+        scriptSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+  }));
+  app.use(RateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    message: 'Too many requests from this IP, please try again later'
+  }));
   app.use(compression());
   app.use(morgan('combined'));
   app.setGlobalPrefix('bank');
@@ -53,7 +66,13 @@ async function bootstrap(): Promise<void> {
   setupSwagger(app);
 
   const configService = app.get(ConfigService);
-  await app.listen(configService.get('PORT'));
+  const port = configService.get('PORT') || 3000;
+  await app.listen(port);
+
+  console.warn(`🚀 Banking API server running on port ${port}`);
+  console.warn(`📚 API Documentation available at http://localhost:${port}/documentation`);
+  console.warn(`🔒 Security: CORS enabled, Rate limiting active (100 req/15min)`);
+  console.warn(`📊 API Version: Banking API v2.0.0`);
 }
 
 void bootstrap();

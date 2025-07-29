@@ -14,6 +14,10 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiTags,
+  ApiOperation,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+  ApiBody,
 } from '@nestjs/swagger';
 import { RoleType } from 'common/constants';
 import { AuthUser, Roles } from 'decorators';
@@ -31,6 +35,7 @@ import { UserDto } from 'modules/user/dtos';
 import { UserEntity } from 'modules/user/entities';
 import { UserAuthService, UserService } from 'modules/user/services';
 import { Transactional } from 'typeorm-transactional-cls-hooked';
+import { ErrorResponseDto, BankingErrorResponseDto } from 'common/dtos';
 
 @Controller('Auth')
 @ApiTags('Auth')
@@ -43,10 +48,31 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'User login',
+    description: 'Authenticate user with PIN code and password to receive JWT access token for API access',
+  })
+  @ApiBody({
+    type: UserLoginDto,
+    description: 'User login credentials',
+    examples: {
+      validLogin: {
+        summary: 'Valid login credentials',
+        value: {
+          pinCode: 123456,
+          password: 'SecurePassword123!'
+        }
+      }
+    }
+  })
   @ApiOkResponse({
     status: HttpStatus.OK,
     type: LoginPayloadDto,
-    description: 'User info with access token',
+    description: 'User successfully authenticated with access token'
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid credentials or validation errors',
+    type: BankingErrorResponseDto
   })
   async userLogin(
     @Body() userLoginDto: UserLoginDto,
@@ -59,10 +85,22 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'User registration',
+    description: 'Register a new user account in the banking system',
+  })
+  @ApiBody({
+    type: UserRegisterDto,
+    description: 'User registration data'
+  })
   @ApiOkResponse({
     status: HttpStatus.OK,
     type: UserDto,
-    description: 'Successfully Registered',
+    description: 'User successfully registered'
+  })
+  @ApiBadRequestResponse({
+    description: 'Registration validation errors or email already exists',
+    type: BankingErrorResponseDto
   })
   async userRegister(
     @Body() userRegisterDto: UserRegisterDto,
@@ -73,8 +111,16 @@ export class AuthController {
 
   @Patch('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'User logout',
+    description: 'Logout user and update last logout timestamp',
+  })
   @ApiNoContentResponse({
-    description: 'Successfully Logout',
+    description: 'User successfully logged out',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token',
+    type: ErrorResponseDto
   })
   @UseGuards(AuthGuard, RolesGuard)
   @UseInterceptors(AuthUserInterceptor)
@@ -86,9 +132,21 @@ export class AuthController {
 
   @Post('password/forget')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Forgot password',
+    description: 'Send password reset email with secure token to user',
+  })
+  @ApiBody({
+    type: UserForgottenPasswordDto,
+    description: 'User email for password reset'
+  })
   @ApiNoContentResponse({
     status: HttpStatus.NO_CONTENT,
-    description: 'Successfully token created',
+    description: 'Password reset email sent successfully',
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid email address or user not found',
+    type: BankingErrorResponseDto
   })
   async forgetPassword(
     @Body() userForgottenPasswordDto: UserForgottenPasswordDto,
@@ -100,9 +158,25 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtResetPasswordGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Reset password',
+    description: 'Reset user password using secure reset token from email',
+  })
+  @ApiBody({
+    type: UserResetPasswordDto,
+    description: 'New password for user account'
+  })
   @ApiNoContentResponse({
     status: HttpStatus.NO_CONTENT,
-    description: 'Successfully reseted password',
+    description: 'Password successfully reset',
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid or expired reset token',
+    type: BankingErrorResponseDto
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid reset token',
+    type: ErrorResponseDto
   })
   @Transactional()
   async resetPassword(

@@ -11,7 +11,18 @@ import {
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { 
+  ApiBearerAuth, 
+  ApiResponse, 
+  ApiTags,
+  ApiOperation,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+  ApiParam,
+  ApiQuery,
+  ApiBody
+} from '@nestjs/swagger';
 import { RoleType } from 'common/constants';
 import { AuthUser, Roles } from 'decorators';
 import { AuthGuard, RolesGuard } from 'guards';
@@ -28,6 +39,7 @@ import {
 } from 'modules/bill/dtos';
 import { BillService } from 'modules/bill/services';
 import { UserEntity } from 'modules/user/entities';
+import { ErrorResponseDto, BankingErrorResponseDto } from 'common/dtos';
 
 @Controller('Bills')
 @ApiTags('Bills')
@@ -40,10 +52,32 @@ export class BillController {
   @Get('/')
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
   @HttpCode(HttpStatus.OK)
-  @ApiResponse({
+  @ApiOperation({
+    summary: 'Get user bills/accounts',
+    description: 'Retrieve paginated list of user bank accounts with balance information',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: 'number',
+    description: 'Page number (default: 1)',
+    example: 1
+  })
+  @ApiQuery({
+    name: 'take',
+    required: false,
+    type: 'number',
+    description: 'Number of items per page (default: 10)',
+    example: 10
+  })
+  @ApiOkResponse({
     status: HttpStatus.OK,
-    description: "Get User's bills list",
-    type: BillsPageDto,
+    description: 'Bills retrieved successfully',
+    type: BillsPageDto
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token',
+    type: ErrorResponseDto
   })
   async userBills(
     @Query(new ValidationPipe({ transform: true }))
@@ -56,10 +90,26 @@ export class BillController {
   @Post('/')
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
   @HttpCode(HttpStatus.OK)
-  @ApiResponse({
+  @ApiOperation({
+    summary: 'Create new bank account',
+    description: 'Create a new bank account/bill for the authenticated user with specified currency',
+  })
+  @ApiBody({
+    type: CreateBillDto,
+    description: 'Account creation details'
+  })
+  @ApiOkResponse({
     status: HttpStatus.OK,
-    description: "Get User's bills list",
-    type: BillDto,
+    description: 'Account created successfully',
+    type: BillDto
+  })
+  @ApiBadRequestResponse({
+    description: 'Account creation failed',
+    type: BankingErrorResponseDto
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token',
+    type: ErrorResponseDto
   })
   async createBill(
     @AuthUser() user: UserEntity,
