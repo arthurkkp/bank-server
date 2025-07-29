@@ -38,8 +38,12 @@ export class MessageController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: "Get User's messages",
+    description: "Get paginated list of user's messages",
     type: MessagesPageDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
   })
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
   async getMessages(
@@ -54,8 +58,20 @@ export class MessageController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Create Message',
+    description: 'Create new message (Admin/Root only)',
     type: MessageDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error - invalid message data',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - insufficient permissions (Admin/Root required)',
   })
   @Roles(RoleType.ADMIN, RoleType.ROOT)
   async createMessage(
@@ -68,8 +84,20 @@ export class MessageController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,
-    description: 'Readed message',
+    description: 'Mark message as read',
     type: MessageDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid message ID or validation error',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Message not found or not accessible to user',
   })
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
   async readMessage(

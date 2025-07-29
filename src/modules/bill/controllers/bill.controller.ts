@@ -42,8 +42,12 @@ export class BillController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: "Get User's bills list",
+    description: "Get paginated list of user's bank accounts with balances",
     type: BillsPageDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
   })
   async userBills(
     @Query(new ValidationPipe({ transform: true }))
@@ -58,8 +62,16 @@ export class BillController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: "Get User's bills list",
+    description: "Create new bank account with specified currency (max 5 accounts per user)",
     type: BillDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid currency or maximum account limit reached (5 accounts)',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
   })
   async createBill(
     @AuthUser() user: UserEntity,
@@ -77,8 +89,12 @@ export class BillController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: "Get User's amount money",
+    description: "Get user's total amount of money across all accounts",
     type: TotalAmountMoneyPayloadDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
   })
   async userAmountMoney(
     @AuthUser() user: UserEntity,
@@ -91,8 +107,12 @@ export class BillController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: "Get User's account balance history",
+    description: "Get user's current total account balance",
     type: TotalAccountBalancePayloadDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
   })
   async userAccountBalance(
     @AuthUser() user: UserEntity,
@@ -105,8 +125,12 @@ export class BillController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: "Get User's account balance history",
+    description: "Get user's account balance history over time",
     type: TotalAccountBalanceHistoryPayloadDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
   })
   async userAccountBalanceHistory(
     @AuthUser() user: UserEntity,

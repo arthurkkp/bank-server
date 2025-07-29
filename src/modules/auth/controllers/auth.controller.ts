@@ -13,6 +13,7 @@ import {
   ApiBearerAuth,
   ApiNoContentResponse,
   ApiOkResponse,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { RoleType } from 'common/constants';
@@ -46,7 +47,15 @@ export class AuthController {
   @ApiOkResponse({
     status: HttpStatus.OK,
     type: LoginPayloadDto,
-    description: 'User info with access token',
+    description: 'User successfully authenticated with access token',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid credentials or validation error',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Authentication failed - invalid PIN code or password',
   })
   async userLogin(
     @Body() userLoginDto: UserLoginDto,
@@ -62,7 +71,15 @@ export class AuthController {
   @ApiOkResponse({
     status: HttpStatus.OK,
     type: UserDto,
-    description: 'Successfully Registered',
+    description: 'User successfully registered with auto-generated PIN code',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error or email already exists',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'User with this email already exists',
   })
   async userRegister(
     @Body() userRegisterDto: UserRegisterDto,
@@ -74,7 +91,11 @@ export class AuthController {
   @Patch('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({
-    description: 'Successfully Logout',
+    description: 'User successfully logged out',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
   })
   @UseGuards(AuthGuard, RolesGuard)
   @UseInterceptors(AuthUserInterceptor)
@@ -88,7 +109,11 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({
     status: HttpStatus.NO_CONTENT,
-    description: 'Successfully token created',
+    description: 'Password reset token sent to email if account exists',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid email format or validation error',
   })
   async forgetPassword(
     @Body() userForgottenPasswordDto: UserForgottenPasswordDto,
@@ -102,7 +127,15 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiNoContentResponse({
     status: HttpStatus.NO_CONTENT,
-    description: 'Successfully reseted password',
+    description: 'Password successfully reset',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid password format or validation error',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid or expired reset token',
   })
   @Transactional()
   async resetPassword(

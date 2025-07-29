@@ -49,8 +49,12 @@ export class TransactionController {
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Get transactions',
+    description: 'Get paginated list of user transactions',
     type: TransactionsPageDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
   })
   async getTransactions(
     @Query(new ValidationPipe({ transform: true }))
@@ -65,8 +69,20 @@ export class TransactionController {
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
   @ApiOkResponse({
     status: HttpStatus.OK,
-    description: 'create transfer',
+    description: 'Transaction created successfully, authorization key sent via email',
     type: CreateTransactionPayloadDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid transaction data or insufficient funds',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Sender or recipient account not found',
   })
   async createTransaction(
     @AuthUser() user: UserEntity,
@@ -84,7 +100,19 @@ export class TransactionController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
   @ApiNoContentResponse({
-    description: 'confirm transfer',
+    description: 'Transaction confirmed and processed successfully',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid authorization key or transaction already confirmed',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Transaction not found',
   })
   async confirmTransaction(
     @AuthUser() user: UserEntity,
@@ -101,8 +129,16 @@ export class TransactionController {
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
   @ApiOkResponse({
     status: HttpStatus.OK,
-    description: 'get authorization key',
+    description: 'Get authorization key for transaction confirmation',
     type: TransactionAuthorizationKeyPayloadDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Transaction not found or not owned by user',
   })
   async getAuthorizationKey(
     @Param('uuid') uuid: string,
@@ -121,8 +157,23 @@ export class TransactionController {
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
   @ApiOkResponse({
     status: HttpStatus.OK,
-    description: 'get authorization key',
-    type: TransactionAuthorizationKeyPayloadDto,
+    description: 'Download transaction confirmation PDF document',
+    content: {
+      'application/pdf': {
+        schema: {
+          type: 'string',
+          format: 'binary'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - invalid or missing JWT token',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Transaction not found or not owned by user',
   })
   async getConfirmation(
     @Param('uuid') uuid: string,
