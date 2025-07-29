@@ -10,7 +10,7 @@ describe('CurrencyService', () => {
   let currencyRepository: jest.Mocked<CurrencyRepository>;
 
   beforeEach(async () => {
-    const mockCurrencyRepository = createMockRepository<CurrencyEntity>();
+    const mockCurrencyRepository = createMockRepository();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

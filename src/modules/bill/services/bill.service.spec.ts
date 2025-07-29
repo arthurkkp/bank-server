@@ -17,8 +17,8 @@ describe('BillService', () => {
   let currencyService: jest.Mocked<CurrencyService>;
 
   beforeEach(async () => {
-    const mockBillRepository = createMockRepository<BillEntity>();
-    const mockTransactionRepository = createMockRepository<TransactionEntity>();
+    const mockBillRepository = createMockRepository();
+    const mockTransactionRepository = createMockRepository();
     const mockCurrencyService = {
       findCurrency: jest.fn(),
     };

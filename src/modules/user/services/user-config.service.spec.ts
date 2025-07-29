@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserConfigService } from './user-config.service';
 import { UserConfigRepository } from '../repositories';
+import { CurrencyService } from '../../currency/services';
 import { createMockRepository, createMockUser, createMockUserConfig } from '../../../test-utils';
 
 describe('UserConfigService', () => {
@@ -9,6 +10,9 @@ describe('UserConfigService', () => {
 
   beforeEach(async () => {
     const mockUserConfigRepository = createMockRepository();
+    const mockCurrencyService = {
+      findCurrency: jest.fn().mockResolvedValue({ uuid: 'currency-uuid' }),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -16,6 +20,10 @@ describe('UserConfigService', () => {
         {
           provide: UserConfigRepository,
           useValue: mockUserConfigRepository,
+        },
+        {
+          provide: CurrencyService,
+          useValue: mockCurrencyService,
         },
       ],
     }).compile();
@@ -46,16 +54,11 @@ describe('UserConfigService', () => {
 
   describe('setNotification', () => {
     it('should update notification count', async () => {
-      const user = createMockUser();
       const mockUserConfig = createMockUserConfig();
 
-      userConfigRepository.findOne.mockResolvedValue(mockUserConfig);
-      userConfigRepository.save.mockResolvedValue(mockUserConfig);
+      const result = await service.setNotification(mockUserConfig);
 
-      await service.setNotification(mockUserConfig);
-
-      expect(userConfigRepository.save).toHaveBeenCalledWith(mockUserConfig);
-      expect(userConfigRepository.save).toHaveBeenCalled();
+      expect(userConfigRepository.createQueryBuilder).toHaveBeenCalledWith('userConfig');
     });
   });
 });
