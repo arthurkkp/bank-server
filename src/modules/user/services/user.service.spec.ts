@@ -74,9 +74,15 @@ describe('UserService', () => {
     it('should return user by email', async () => {
       const email = 'test@example.com';
       const mockUser = createMockUser({ email });
-      const mockQueryBuilder = userRepository.createQueryBuilder();
-
-      mockQueryBuilder.getOne = jest.fn().mockResolvedValue(mockUser);
+      
+      const mockQueryBuilder = {
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        orWhere: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(mockUser),
+      };
+      
+      userRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
 
       const result = await service.getUser({ email });
 
@@ -87,9 +93,15 @@ describe('UserService', () => {
     it('should return user by uuid', async () => {
       const uuid = 'test-uuid';
       const mockUser = createMockUser({ uuid });
-      const mockQueryBuilder = userRepository.createQueryBuilder();
-
-      mockQueryBuilder.getOne = jest.fn().mockResolvedValue(mockUser);
+      
+      const mockQueryBuilder = {
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        orWhere: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(mockUser),
+      };
+      
+      userRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
 
       const result = await service.getUser({ uuid });
 
@@ -113,6 +125,8 @@ describe('UserService', () => {
       userRepository.save.mockResolvedValue(mockUser);
       userAuthService.createUserAuth.mockResolvedValue({} as any);
       billService.createAccountBill.mockResolvedValue(undefined);
+      
+      jest.spyOn(service, 'getUser').mockResolvedValue(mockUser);
 
       const result = await service.createUser(userRegisterDto);
 
@@ -143,14 +157,22 @@ describe('UserService', () => {
   describe('updateUserData', () => {
     it('should update user data successfully', async () => {
       const user = createMockUser();
-      const updateDto: UserUpdateDto = {} as any;
-      const updatedUser = createMockUser();
+      const updateDto: UserUpdateDto = {
+        email: 'updated@example.com',
+        lastName: 'UpdatedLastName',
+      };
+      const updatedUser = createMockUser({ email: 'updated@example.com' });
 
-      userRepository.save.mockResolvedValue(updatedUser);
+      jest.spyOn(service, 'getUser')
+        .mockResolvedValueOnce(null) // For email existence check
+        .mockResolvedValueOnce(updatedUser); // For final return
+      
+      userRepository.update = jest.fn().mockResolvedValue(undefined);
 
       const result = await service.updateUserData(user, updateDto);
 
-      expect(userRepository.save).toHaveBeenCalled();
+      expect(userRepository.update).toHaveBeenCalledWith(user.id, { email: 'updated@example.com' });
+      expect(userRepository.update).toHaveBeenCalledWith(user.id, { lastName: 'UpdatedLastName' });
       expect(result).toBe(updatedUser);
     });
   });

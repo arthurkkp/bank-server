@@ -16,17 +16,21 @@ export const createMockRepository = (): any => ({
     addSelect: jest.fn().mockReturnThis(),
     leftJoin: jest.fn().mockReturnThis(),
     leftJoinAndSelect: jest.fn().mockReturnThis(),
+    innerJoinAndSelect: jest.fn().mockReturnThis(),
     where: jest.fn().mockReturnThis(),
     andWhere: jest.fn().mockReturnThis(),
+    orWhere: jest.fn().mockReturnThis(),
     orderBy: jest.fn().mockReturnThis(),
     addOrderBy: jest.fn().mockReturnThis(),
     skip: jest.fn().mockReturnThis(),
     take: jest.fn().mockReturnThis(),
     limit: jest.fn().mockReturnThis(),
     setParameter: jest.fn().mockReturnThis(),
-    getOne: jest.fn(),
-    getMany: jest.fn(),
-    getManyAndCount: jest.fn(),
+    getOne: jest.fn().mockResolvedValue(null),
+    getMany: jest.fn().mockResolvedValue([]),
+    getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+    getRawMany: jest.fn(),
+    getRawOne: jest.fn(),
     execute: jest.fn(),
     from: jest.fn().mockReturnThis(),
     update: jest.fn().mockReturnThis(),
@@ -53,4 +57,11 @@ export const createMockConfigService = (): Partial<ConfigService> => ({
 export const createMockJwtService = (): Partial<JwtService> => ({
   signAsync: jest.fn().mockResolvedValue('mock-jwt-token'),
   verifyAsync: jest.fn().mockResolvedValue({ uuid: 'test-uuid', role: 'USER' }),
+});
+
+export const createMockUtilsService = () => ({
+  generateHash: jest.fn().mockResolvedValue('hashed-password'),
+  validateHash: jest.fn().mockResolvedValue(true),
+  generateRandomString: jest.fn().mockReturnValue('random-string'),
+  generateRandomInteger: jest.fn().mockReturnValue(12345),
 });

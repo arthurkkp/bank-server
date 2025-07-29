@@ -56,10 +56,21 @@ describe('BillService', () => {
       const user = createMockUser();
       const pageOptions = new BillsPageOptionsDto();
       const mockBills = [createMockBill()];
-      const mockQueryBuilder = billRepository.createQueryBuilder();
-
-      mockQueryBuilder.getManyAndCount = jest.fn().mockResolvedValue([mockBills, 1]);
-      mockBills[0].toDto = jest.fn().mockReturnValue({ id: 1, accountBillNumber: '123' });
+      
+      mockBills.toDtos = jest.fn().mockReturnValue([{ id: 1, accountBillNumber: '123' }]);
+      
+      const mockQueryBuilder = {
+        addSelect: jest.fn().mockReturnThis(),
+        leftJoin: jest.fn().mockReturnThis(),
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([mockBills, 1]),
+      };
+      
+      billRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder);
 
       const result = await service.getBills(user, pageOptions);
 
@@ -73,10 +84,19 @@ describe('BillService', () => {
     it('should return a single bill with calculated amount', async () => {
       const user = createMockUser();
       const mockBill = createMockBill();
-      const mockQueryBuilder = billRepository.createQueryBuilder();
-
-      mockQueryBuilder.getOne = jest.fn().mockResolvedValue(mockBill);
+      
       mockBill.toDto = jest.fn().mockReturnValue({ id: 1, accountBillNumber: '123' });
+      
+      const mockQueryBuilder = {
+        addSelect: jest.fn().mockReturnThis(),
+        leftJoin: jest.fn().mockReturnThis(),
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(mockBill),
+      };
+      
+      billRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder);
 
       const result = await service.getBill(user);
 
@@ -135,10 +155,23 @@ describe('BillService', () => {
       const pageOptions = new BillsPageOptionsDto();
       const user = createMockUser();
       const mockBills = [createMockBill()];
-      const mockQueryBuilder = billRepository.createQueryBuilder();
-
-      mockQueryBuilder.getManyAndCount = jest.fn().mockResolvedValue([mockBills, 1]);
-      mockBills[0].toDto = jest.fn().mockReturnValue({ id: 1, accountBillNumber: '123' });
+      
+      mockBills.toDtos = jest.fn().mockReturnValue([{ id: 1, accountBillNumber: '123' }]);
+      
+      const mockQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        leftJoin: jest.fn().mockReturnThis(),
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([mockBills, 1]),
+      };
+      
+      billRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder);
 
       const result = await service.searchBill(accountBillNumber, pageOptions, user);
 
@@ -152,9 +185,16 @@ describe('BillService', () => {
       const uuid = 'test-uuid';
       const user = createMockUser();
       const mockBill = createMockBill();
-      const mockQueryBuilder = billRepository.createQueryBuilder();
-
-      mockQueryBuilder.getOne = jest.fn().mockResolvedValue(mockBill);
+      
+      const mockQueryBuilder = {
+        addSelect: jest.fn().mockReturnThis(),
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(mockBill),
+      };
+      
+      billRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder);
 
       const result = await service.findBill(uuid, user);
 

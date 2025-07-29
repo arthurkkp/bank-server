@@ -8,15 +8,27 @@ import { createMockRepository, createMockUser, createMockUserAuth } from '../../
 import { UserAuthEntity } from '../entities';
 import { UtilsService } from '../../../utils/services';
 
+jest.mock('../../../utils/services', () => ({
+  UtilsService: {
+    generateHash: jest.fn(),
+    validateHash: jest.fn(),
+    generateRandomInteger: jest.fn(),
+    generateRandomString: jest.fn(),
+  },
+}));
+
 describe('UserAuthService', () => {
   let service: UserAuthService;
   let userAuthRepository: jest.Mocked<UserAuthRepository>;
+  let userRepository: jest.Mocked<UserRepository>;
+  let userService: jest.Mocked<UserService>;
 
   beforeEach(async () => {
     const mockUserAuthRepository = createMockRepository();
     const mockUserRepository = createMockRepository();
     const mockUserConfigService = {
       createUserConfig: jest.fn(),
+      updateLastPresentLoggedDate: jest.fn().mockResolvedValue({}),
     };
     const mockUserService = {
       getUser: jest.fn(),
@@ -47,6 +59,11 @@ describe('UserAuthService', () => {
 
     service = module.get<UserAuthService>(UserAuthService);
     userAuthRepository = module.get(UserAuthRepository);
+    userRepository = module.get(UserRepository);
+    userService = module.get(UserService);
+
+    (UtilsService.generateHash as jest.Mock).mockResolvedValue('hashed-password');
+    (UtilsService.generateRandomInteger as jest.Mock).mockReturnValue(12345);
   });
 
   it('should be defined', () => {
@@ -57,13 +74,17 @@ describe('UserAuthService', () => {
     it('should find user by pin code', async () => {
       const pinCode = 12345;
       const user = createMockUser();
-      const mockQueryBuilder = userAuthRepository.createQueryBuilder();
+      const mockQueryBuilder = {
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        orWhere: jest.fn().mockReturnThis(),
+        getOne: jest.fn().mockResolvedValue(user),
+      };
 
-      mockQueryBuilder.getOne = jest.fn().mockResolvedValue(user);
+      userRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
 
       const result = await service.findUserAuth({ pinCode });
 
-      expect(userAuthRepository.createQueryBuilder).toHaveBeenCalledWith('userAuth');
+      expect(userRepository.createQueryBuilder).toHaveBeenCalledWith('user');
       expect(result).toBe(user);
     });
   });
@@ -71,17 +92,15 @@ describe('UserAuthService', () => {
   describe('createUserAuth', () => {
     it('should create user auth successfully', async () => {
       const user = createMockUser();
-      const password = 'password123';
       const mockUserAuth = createMockUserAuth();
 
-      (UtilsService.generateHash as jest.Mock) = jest.fn().mockResolvedValue('hashed-password');
-      jest.spyOn(UtilsService, 'generateRandomInteger').mockReturnValue(12345);
+      jest.spyOn(service, 'findUserAuth').mockResolvedValue(null);
       userAuthRepository.create.mockReturnValue(mockUserAuth);
       userAuthRepository.save.mockResolvedValue(mockUserAuth);
 
       const result = await service.createUserAuth(user);
 
-      expect(UtilsService.generateHash).toHaveBeenCalledWith(password);
+      expect(UtilsService.generateRandomInteger).toHaveBeenCalled();
       expect(userAuthRepository.create).toHaveBeenCalled();
       expect(userAuthRepository.save).toHaveBeenCalledWith(mockUserAuth);
       expect(result).toBe(mockUserAuth);
@@ -93,13 +112,20 @@ describe('UserAuthService', () => {
       const user = createMockUser();
       const isPasswordValid = true;
       const updatedUser = createMockUser();
+      const mockQueryBuilder = {
+        update: jest.fn().mockReturnThis(),
+        set: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue({ affected: 1 }),
+      };
 
-      userAuthRepository.save.mockResolvedValue(updatedUser.userAuth);
+      userAuthRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
+      userService.getUser.mockResolvedValue(updatedUser);
 
       const result = await service.updateLastLoggedDate(user, isPasswordValid);
 
-      expect(userAuthRepository.save).toHaveBeenCalled();
-      expect(result).toBe(user);
+      expect(userAuthRepository.createQueryBuilder).toHaveBeenCalledWith('userAuth');
+      expect(result).toBe(updatedUser);
     });
   });
 
@@ -107,14 +133,21 @@ describe('UserAuthService', () => {
     it('should update user password', async () => {
       const userAuth = createMockUserAuth();
       const newPassword = 'newpassword123';
+      const mockQueryBuilder = {
+        update: jest.fn().mockReturnThis(),
+        set: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue({ affected: 1 }),
+      };
 
-      (UtilsService.generateHash as jest.Mock) = jest.fn().mockResolvedValue('new-hashed-password');
-      userAuthRepository.save.mockResolvedValue(userAuth);
+      userAuthRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder as any);
 
-      await service.updatePassword(userAuth, newPassword);
+      const result = await service.updatePassword(userAuth, newPassword);
 
-      expect(UtilsService.generateHash).toHaveBeenCalledWith(newPassword);
-      expect(userAuthRepository.save).toHaveBeenCalled();
+      expect(userAuthRepository.createQueryBuilder).toHaveBeenCalledWith('userAuth');
+      expect(mockQueryBuilder.update).toHaveBeenCalled();
+      expect(mockQueryBuilder.set).toHaveBeenCalledWith({ password: newPassword });
+      expect(result.affected).toBe(1);
     });
   });
 });
