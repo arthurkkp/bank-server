@@ -2,7 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { UserRepository } from '../repositories';
 import { UserAuthService } from './user-auth.service';
+import { UserConfigService } from './user-config.service';
 import { BillService } from '../../bill/services';
+import { CurrencyService } from '../../currency/services';
 import { createMockRepository, createMockUser } from '../../../test-utils';
 import { UserEntity } from '../entities';
 import { UserUpdateDto } from '../dtos';
@@ -14,14 +16,21 @@ describe('UserService', () => {
   let userRepository: jest.Mocked<UserRepository>;
   let userAuthService: jest.Mocked<UserAuthService>;
   let billService: jest.Mocked<BillService>;
+  let currencyService: jest.Mocked<CurrencyService>;
 
   beforeEach(async () => {
     const mockUserRepository = createMockRepository();
     const mockUserAuthService = {
       createUserAuth: jest.fn(),
     };
+    const mockUserConfigService = {
+      createUserConfig: jest.fn(),
+    };
     const mockBillService = {
       createAccountBill: jest.fn(),
+    };
+    const mockCurrencyService = {
+      findCurrency: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -36,16 +45,25 @@ describe('UserService', () => {
           useValue: mockUserAuthService,
         },
         {
+          provide: UserConfigService,
+          useValue: mockUserConfigService,
+        },
+        {
           provide: BillService,
           useValue: mockBillService,
+        },
+        {
+          provide: CurrencyService,
+          useValue: mockCurrencyService,
         },
       ],
     }).compile();
 
     service = module.get<UserService>(UserService);
-    userRepository = module.get(UserRepository);
-    userAuthService = module.get(UserAuthService);
-    billService = module.get(BillService);
+    userRepository = module.get(UserRepository) as jest.Mocked<UserRepository>;
+    userAuthService = module.get(UserAuthService) as jest.Mocked<UserAuthService>;
+    billService = module.get(BillService) as jest.Mocked<BillService>;
+    currencyService = module.get(CurrencyService) as jest.Mocked<CurrencyService>;
   });
 
   it('should be defined', () => {

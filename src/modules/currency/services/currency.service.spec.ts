@@ -23,7 +23,7 @@ describe('CurrencyService', () => {
     }).compile();
 
     service = module.get<CurrencyService>(CurrencyService);
-    currencyRepository = module.get(CurrencyRepository);
+    currencyRepository = module.get(CurrencyRepository) as jest.Mocked<CurrencyRepository>;
   });
 
   it('should be defined', () => {
