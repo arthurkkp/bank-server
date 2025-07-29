@@ -31,7 +31,7 @@
     "@nestjs/passport": "^7.1.0",
     "@nestjs/platform-express": "^7.4.2",
     "@nestjs/schedule": "^0.4.0",
-    "@nestjs/swagger": "^4.5.12",
+    "@nestjs/swagger": "^4.8.2",
     "@nestjs/typeorm": "^7.1.0",
     "bcrypt": "^5.0.0",
     "class-transformer": "^0.3.1",
@@ -54,7 +54,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.0",
     "source-map-support": "^0.5.19",
-    "swagger-ui-express": "^4.1.4",
+    "swagger-ui-express": "^5.0.0",
     "typeorm": "^0.2.25",
     "typeorm-transactional-cls-hooked": "^0.1.12",
     "uuid": "^8.3.0"

@@ -1,4 +1,15 @@
-import { ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { 
+  ApiTags, 
+  ApiBearerAuth, 
+  ApiResponse,
+  ApiOperation,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse,
+  ApiNoContentResponse,
+  ApiQuery,
+  ApiBody
+} from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -25,6 +36,7 @@ import { UserEntity } from 'modules/user/entities';
 import { AuthGuard, RolesGuard } from 'guards';
 import { AuthUserInterceptor } from 'interceptors';
 import { RoleType } from 'common/constants';
+import { ErrorResponseDto, BankingErrorResponseDto } from 'common/dtos';
 
 @Controller('Messages')
 @ApiTags('Messages')
@@ -36,10 +48,32 @@ export class MessageController {
 
   @Get('/')
   @HttpCode(HttpStatus.OK)
-  @ApiResponse({
+  @ApiOperation({
+    summary: 'Get user messages',
+    description: 'Retrieve paginated list of messages for the authenticated user',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: 'number',
+    description: 'Page number (default: 1)',
+    example: 1
+  })
+  @ApiQuery({
+    name: 'take',
+    required: false,
+    type: 'number',
+    description: 'Number of items per page (default: 10)',
+    example: 10
+  })
+  @ApiOkResponse({
     status: HttpStatus.OK,
-    description: "Get User's messages",
-    type: MessagesPageDto,
+    description: 'Messages retrieved successfully',
+    type: MessagesPageDto
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token',
+    type: ErrorResponseDto
   })
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
   async getMessages(
@@ -52,10 +86,26 @@ export class MessageController {
 
   @Post('/')
   @HttpCode(HttpStatus.OK)
-  @ApiResponse({
+  @ApiOperation({
+    summary: 'Create system message',
+    description: 'Create a new system message (admin/root only)',
+  })
+  @ApiBody({
+    type: CreateMessageDto,
+    description: 'Message creation data'
+  })
+  @ApiOkResponse({
     status: HttpStatus.OK,
-    description: 'Create Message',
-    type: MessageDto,
+    description: 'Message created successfully',
+    type: MessageDto
+  })
+  @ApiBadRequestResponse({
+    description: 'Message validation failed',
+    type: BankingErrorResponseDto
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token',
+    type: ErrorResponseDto
   })
   @Roles(RoleType.ADMIN, RoleType.ROOT)
   async createMessage(
@@ -66,10 +116,25 @@ export class MessageController {
 
   @Patch('/')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiResponse({
+  @ApiOperation({
+    summary: 'Mark message as read',
+    description: 'Mark one or more messages as read by the authenticated user',
+  })
+  @ApiBody({
+    type: ReadMessageDto,
+    description: 'Message read confirmation data'
+  })
+  @ApiNoContentResponse({
     status: HttpStatus.NO_CONTENT,
-    description: 'Readed message',
-    type: MessageDto,
+    description: 'Message marked as read successfully'
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid message ID or access denied',
+    type: BankingErrorResponseDto
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid or expired JWT token',
+    type: ErrorResponseDto
   })
   @Roles(RoleType.USER, RoleType.ADMIN, RoleType.ROOT)
   async readMessage(
