@@ -1,0 +1,35 @@
+# Development Dockerfile for NestJS backend with hot reload
+FROM node:18-alpine
+
+# Install security updates and required packages
+RUN apk update && apk upgrade && \
+    apk add --no-cache dumb-init && \
+    rm -rf /var/cache/apk/*
+
+# Use existing node user (UID 1000) for volume mount compatibility
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package.json yarn.lock ./
+
+# Install all dependencies including dev dependencies
+RUN yarn install --frozen-lockfile && yarn cache clean
+
+# Copy source code
+COPY . .
+
+# For development, run as root to avoid permission issues
+# Production containers will use non-root user for security
+
+# Expose port
+EXPOSE 4000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:4000/bank || exit 1
+
+# For development convenience, run as root to avoid permission issues with volume mounts
+# Production containers will use non-root user for security
+CMD ["dumb-init", "yarn", "start:dev"]
