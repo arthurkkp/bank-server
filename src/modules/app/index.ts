@@ -12,6 +12,11 @@ import { BillModule } from 'modules/bill';
 import { TransactionModule } from 'modules/transaction';
 import { AppService } from 'modules/app/services';
 import { contextMiddleware } from 'middlewares';
+import { 
+  HttpsRedirectMiddleware, 
+  SecureCookieMiddleware, 
+  CertificatePinningMiddleware 
+} from 'middlewares';
 import {
   UserAuthForgottenPasswordSubscriber,
   UserAuthSubscriber,
@@ -44,6 +49,12 @@ import { UserSubscriber } from 'modules/user/subscribers/user.subscriber';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
+        ssl: process.env.NODE_ENV === 'production' ? {
+          rejectUnauthorized: true,
+          ca: configService.get('DB_SSL_CA'),
+          cert: configService.get('DB_SSL_CERT'),
+          key: configService.get('DB_SSL_KEY'),
+        } : false,
         entities: [__dirname + '/../../modules/**/*.entity{.ts,.js}'],
         migrations: [__dirname + '/../../migrations/*{.ts,.js}'],
         namingStrategy: new SnakeNamingStrategy(),
@@ -88,6 +99,8 @@ import { UserSubscriber } from 'modules/user/subscribers/user.subscriber';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): MiddlewareConsumer | void {
-    consumer.apply(contextMiddleware).forRoutes('*');
+    consumer
+      .apply(HttpsRedirectMiddleware, SecureCookieMiddleware, CertificatePinningMiddleware, contextMiddleware)
+      .forRoutes('*');
   }
 }
