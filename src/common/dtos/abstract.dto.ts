@@ -1,9 +1,7 @@
-import { AbstractEntity } from 'common/entities';
-
-export class AbstractDto {
+export abstract class AbstractDto {
   readonly uuid: string;
 
-  constructor(abstract: AbstractEntity) {
+  constructor(abstract: any) {
     this.uuid = abstract.uuid;
   }
 }
